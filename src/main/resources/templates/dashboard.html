@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org">
+<head>
+    <title>Basic Basket Commodity Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f6f9; }
+        h1 { color: #333; }
+        .control-deck { display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+        .form-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 350px; }
+        .card-container { display: flex; gap: 20px; flex-wrap: wrap; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 250px; position: relative; }
+        .symbol { font-weight: bold; color: #007bff; font-size: 1.2em; }
+        .category { color: #777; font-size: 0.9em; margin-bottom: 10px; }
+        .measure { font-size: 0.8em; color: #888; margin-bottom: 10px; }
+        .price-list { font-size: 0.9em; padding-left: 20px; color: #333; }
+        .btn-delete { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; text-decoration: none; position: absolute; top: 15px; right: 15px; }
+        .btn-submit { background-color: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 5px; }
+        .input-group { margin-bottom: 10px; }
+        .input-group label { display:block; font-weight:bold; margin-bottom: 3px; font-size: 0.9em; }
+        .input-group input { width: 93%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <h1>Basic Basket Commodities (CRUD)</h1>
+    <p>Real-time tracked pricing info for essential consumer goods.</p>
+
+    <!-- Control Deck containing forms for both Creating and Updating -->
+    <div class="control-deck">
+        
+        <!-- FORM A: CREATE (Add New Asset Definition) -->
+        <div class="form-box">
+            <h3>[C] Add New Commodity Type</h3>
+            <form action="/commodity/create" method="POST">
+                <div class="input-group"><label>Symbol:</label><input type="text" name="symbol" placeholder="e.g., SLV" required></div>
+                <div class="input-group"><label>Name:</label><input type="text" name="name" placeholder="e.g., Silver" required></div>
+                <div class="input-group"><label>Category:</label><input type="text" name="category" placeholder="Metals, Energy..." required></div>
+                <div class="input-group"><label>Unit of Measure:</label><input type="text" name="unitOfMeasure" placeholder="e.g., Per Ounce" required></div>
+                <button type="submit" class="btn-submit" style="background-color: #28a745;">Save New Commodity</button>
+            </form>
+        </div>
+
+        <!-- FORM B: UPDATE (Log a Price Tick) -->
+        <div class="form-box">
+            <h3>[U] Log New Price Entry</h3>
+            <form action="/update-price" method="POST">
+                <div class="input-group">
+                    <label>Commodity Symbol:</label>
+                    <input type="text" name="symbol" placeholder="e.g., GC or CL" required>
+                </div>
+                <div class="input-group">
+                    <label>New Price ($):</label>
+                    <input type="number" name="price" step="0.01" placeholder="0.00" required>
+                </div>
+                <button type="submit" class="btn-submit">Submit Price Update</button>
+            </form>
+        </div>
+        
+    </div>
+
+    <!-- READ & DELETE Grid View -->
+    <h3>[R] Tracked Commodities Grid</h3>
+    <div class="card-container">
+        <div class="card" th:each="commodity : ${commodities}">
+            <!-- [D] DELETE Action Link built using thymeleaf runtime parameters -->
+            <a th:href="@{'/commodity/delete/' + ${commodity.id}}" class="btn-delete" onclick="return confirm('Are you sure you want to delete this commodity and its full price history?');">Delete</a>
+            
+            <div class="symbol" th:text="${commodity.symbol}">GC</div>
+            <div th:text="${commodity.name}">Gold</div>
+            <div class="category" th:text="${commodity.category}">Metals</div>
+            <div class="measure" th:text="${commodity.unitOfMeasure}">Per Ounce</div>
+            
+            <strong>Price History:</strong>
+            <ul class="price-list">
+                <li th:each="record : ${commodity.priceHistory}">
+                    $<span th:text="${record.price}">0.00</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</body>
+</html>
+
